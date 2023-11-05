@@ -43,7 +43,7 @@ async function run() {
       const query = { _id: new ObjectId(id) };
 
       const options = {
-        projection: { title: 1, price: 1, service_id: 1 }, // jodi kono propertiy er value chai tahole dibo 1 na chaile 0
+        projection: { title: 1, price: 1, service_id: 1, img: 1 }, // jodi kono propertiy er value chai tahole dibo 1 na chaile 0
       };
       const result = await serviceCollection.findOne(query, options);
       res.send(result);
@@ -54,6 +54,22 @@ async function run() {
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
       const result = await bookingCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    // 4) Get specific data/Some Data  ,  [Read]
+
+    app.get("/bookings", async (req, res) => {
+      console.log(req.query.email); // req.query ekhon ekta empty ekta object karon ami kono object pass kori nai!
+
+      let query = {};
+
+      if (req.query.email) {
+        query = { email: req.query.email };
+      } // req er moddhe query er moddhe jodi email jinis ta thake tahole query er man ta change kore bolba jei email ta chaisi sei email related data gula amake dao!
+
+      const cursor = bookingCollection.find(query); // find diye oi collection er document khujtesi jodi kichu thake tahole oita dibe na thakle empty cursor
+      const result = await cursor.toArray(); //toArray() iterate through the matching documents
       res.send(result);
     });
 
