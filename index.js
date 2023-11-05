@@ -27,8 +27,9 @@ async function run() {
     await client.connect();
 
     const serviceCollection = client.db("carDoctor").collection("services");
+    const bookingCollection = client.db("carDoctor").collection("bookings");
 
-    // 1) Get all the data [READ]
+    // 1) Get all the data [READ] *** This is for services Collection ***
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find(); // find diye oi collection er document khujtesi jodi kichu thake tahole oita dibe na thakle empty cursor
       const result = await cursor.toArray(); //toArray() iterate through the matching documents
@@ -46,6 +47,12 @@ async function run() {
       };
       const result = await serviceCollection.findOne(query, options);
       res.send(result);
+    });
+
+    // 3) Insert Single data [Create]  *** This is for Bookings Collection ***
+
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
     });
 
     // Send a ping to confirm a successful connection
