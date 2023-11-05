@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.port || 5000;
@@ -28,9 +28,23 @@ async function run() {
 
     const serviceCollection = client.db("carDoctor").collection("services");
 
+    // 1) Get all the data [READ]
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find(); // find diye oi collection er document khujtesi jodi kichu thake tahole oita dibe na thakle empty cursor
       const result = await cursor.toArray(); //toArray() iterate through the matching documents
+      res.send(result);
+    });
+
+    // 2) Get Single Data [Read]
+
+    app.get("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+
+      const options = {
+        projection: { title: 1, price: 1, service_id: 1 }, // jodi kono propertiy er value chai tahole dibo 1 na chaile 0
+      };
+      const result = await serviceCollection.findOne(query, options);
       res.send(result);
     });
 
