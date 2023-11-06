@@ -73,7 +73,7 @@ async function run() {
       res.send(result);
     });
 
-    // 5) Delete a single data
+    // 5) Delete a single data [Delete]
 
     app.delete("/bookings/:id", async (req, res) => {
       const id = req.params.id;
@@ -82,6 +82,21 @@ async function run() {
       res.send(result);
     });
 
+    // 6) Patch a single document [Update] {Jodi na thake tumi add kore diba r patch hocche update korbe single ekta jinis k}
+
+    app.patch("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateBooking = req.body;
+      console.log(updateBooking);
+      const updateDoc = {
+        $set: {
+          status: updateBooking.status,
+        },
+      };
+      const result = await bookingCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
