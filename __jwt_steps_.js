@@ -17,8 +17,15 @@
 /**
  * 1. ste cookie with http only. for development secure: false,
  *
- * 2. cors settings
+ * 2. cors settings:
+ 
+ * pp.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    credentials: true,
+  })
+);
  *
- * client side axios setting
- *
+ * 3. client side axios setting
+ * in axios set withCredentials: true
  */

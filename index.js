@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
@@ -8,8 +9,14 @@ const port = process.env.port || 5000;
 
 // middleware
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(cookieParser());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.b9hatji.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -42,7 +49,6 @@ async function run() {
         .cookie("token", token, {
           httpOnly: true,
           secure: false,
-          sameSite: "none",
         })
         .send({ success: true });
     });
@@ -79,7 +85,7 @@ async function run() {
 
     app.get("/bookings", async (req, res) => {
       console.log(req.query.email); // req.query ekhon ekta empty ekta object karon ami kono object pass kori nai!
-
+      console.log("token is = ", req.cookies.token);
       let query = {};
 
       if (req.query.email) {
