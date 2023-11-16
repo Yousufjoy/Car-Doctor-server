@@ -29,6 +29,51 @@ const client = new MongoClient(uri, {
   },
 });
 
+// middlewears
+const logger = async (req, res, next) => {
+  console.log("called", req.host, req.originalUrl);
+  next();
+};
+
+// const verifyToken = async (req, res, next) => {
+//   const token = req.cookies?.token;
+//   console.log("value of token", verifyToken);
+//   if (!token) {
+//     return res.status(4001).send({ message: "Not authorized!" });
+//   }
+//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+//     if (err) {
+//       console.log("The error", err);
+//       return res.status(401).send({ message: "Unauthorized" });
+//     }
+//     console.log("Value in the token", decoded);
+//     req.user = decoded;
+//     next();
+//   });
+// };
+
+const verifyToken = async (req, res, next) => {
+  const token = req.cookies?.token;
+  console.log("value of token", token);
+  if (!token) {
+    return res.status(4001).send({ message: "Not authorized!" });
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      if (err.name === "TokenExpiredError") {
+        return res
+          .status(401)
+          .send({ message: "Token expired. Please log in again." });
+      } else {
+        console.log("The error", err);
+        return res.status(401).send({ message: "Unauthorized" });
+      }
+    }
+    console.log("Value in the token", decoded);
+    next();
+  });
+};
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -39,13 +84,13 @@ async function run() {
 
     // auth relate api
 
-    app.post("/jwt", async (req, res) => {
+    app.post("/jwt", logger, async (req, res) => {
       const user = req.body;
       console.log(user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
+        expiresIn: "1h", // payload, secret, options-> settings
       });
-      res
+      res // cookie er moddhe set kora
         .cookie("token", token, {
           httpOnly: true,
           secure: false,
@@ -83,7 +128,7 @@ async function run() {
 
     // 4) Get specific data/Some Data  ,  [Read]
 
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", logger, verifyToken, async (req, res) => {
       console.log(req.query.email); // req.query ekhon ekta empty ekta object karon ami kono object pass kori nai!
       console.log("token is = ", req.cookies.token);
       let query = {};
